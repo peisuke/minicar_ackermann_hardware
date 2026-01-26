@@ -1,0 +1,10 @@
+<library path="ackermann_hardware_interface">
+  <class name="minicar_ackermann_hardware/AckermannHardwareInterface"
+         type="minicar_ackermann_hardware::AckermannHardwareInterface"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      Hardware interface for Ackermann steering robot (TT-02) with ESC and steering servo.
+      Controls throttle via ESC and steering via servo using PCA9685 PWM controller.
+    </description>
+  </class>
+</library>

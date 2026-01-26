@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+"""
+Launch file for Ackermann steering robot motor control only (no LiDAR).
+
+Useful for testing motor/servo control without sensor setup.
+"""
+
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, Command
+from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
+from launch_ros.parameter_descriptions import ParameterValue
+
+
+def generate_launch_description():
+
+    # Launch arguments
+    robot_ns_arg = DeclareLaunchArgument(
+        'robot_ns',
+        default_value='real_robot',
+        description='Robot namespace'
+    )
+
+    use_sim_time_arg = DeclareLaunchArgument(
+        'use_sim_time',
+        default_value='false',
+        description='Use simulation time if true'
+    )
+
+    # Launch configurations
+    robot_ns = LaunchConfiguration('robot_ns')
+    use_sim_time = LaunchConfiguration('use_sim_time')
+
+    # URDF/XACRO file for hardware
+    xacro_file = PathJoinSubstitution([
+        FindPackageShare('minicar_ackermann_hardware'),
+        'config', 'minicar_ackermann_real.xacro'
+    ])
+
+    robot_description = ParameterValue(
+        Command(['xacro ', xacro_file, ' robot_ns:=', robot_ns]),
+        value_type=str
+    )
+
+    # Hardware config file
+    hardware_config = PathJoinSubstitution([
+        FindPackageShare('minicar_ackermann_hardware'),
+        'config', 'ackermann_controller.yaml'
+    ])
+
+    return LaunchDescription([
+        robot_ns_arg,
+        use_sim_time_arg,
+
+        # Robot State Publisher
+        Node(
+            package='robot_state_publisher',
+            executable='robot_state_publisher',
+            name='robot_state_publisher',
+            namespace=robot_ns,
+            output='screen',
+            parameters=[{
+                'robot_description': robot_description,
+                'use_sim_time': use_sim_time
+            }]
+        ),
+
+        # Controller Manager (hardware interface)
+        Node(
+            package='controller_manager',
+            executable='ros2_control_node',
+            namespace=robot_ns,
+            output='screen',
+            parameters=[
+                hardware_config,
+                {
+                    'use_sim_time': use_sim_time,
+                    'robot_description': robot_description
+                }
+            ]
+        ),
+
+        # Joint State Broadcaster
+        Node(
+            package="controller_manager",
+            executable="spawner",
+            arguments=[
+                "joint_state_broadcaster",
+                "--controller-manager", ["/", robot_ns, "/controller_manager"]
+            ],
+            output="screen",
+            parameters=[{'use_sim_time': use_sim_time}]
+        ),
+
+        # Ackermann Steering Controller
+        Node(
+            package='controller_manager',
+            executable='spawner',
+            arguments=[
+                'ackermann_steering_controller',
+                '--controller-manager', ["/", robot_ns, "/controller_manager"]
+            ],
+            output='screen',
+            parameters=[{'use_sim_time': use_sim_time}]
+        ),
+    ])
