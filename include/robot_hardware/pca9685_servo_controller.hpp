@@ -91,6 +91,12 @@ public:
    */
   void set_esc_limits(double min_ms, double center_ms, double max_ms);
 
+  /**
+   * @brief Set clock correction factor for PCA9685 oscillator drift
+   * @param correction Correction factor (e.g., 1.1 for a fast oscillator)
+   */
+  void set_clock_correction(double correction);
+
 private:
   /**
    * @brief Set PWM pulse width on a channel
@@ -150,6 +156,10 @@ private:
 
   // PCA9685 oscillator frequency
   static constexpr double OSC_FREQUENCY = 25000000.0;  // 25 MHz
+
+  // Clock correction factor for PCA9685 oscillator drift
+  // Adjusts pulse width calculation to compensate for individual board variance
+  double clock_correction_ = 1.0;
 };
 
 }  // namespace minicar_ackermann_hardware

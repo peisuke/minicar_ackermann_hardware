@@ -51,6 +51,10 @@ hardware_interface::CallbackReturn AckermannHardwareInterface::on_init(
   esc_max_pulse_ms_ = info_.hardware_parameters.count("esc_max_pulse_ms") ?
     std::stod(info_.hardware_parameters.at("esc_max_pulse_ms")) : 2.0;
 
+  // PCA9685 clock correction
+  clock_correction_ = info_.hardware_parameters.count("clock_correction") ?
+    std::stod(info_.hardware_parameters.at("clock_correction")) : 1.0;
+
   // Open-loop odometry
   use_open_loop_odometry_ = info_.hardware_parameters.count("use_open_loop_odometry") ?
     (info_.hardware_parameters.at("use_open_loop_odometry") == "true") : true;
@@ -323,6 +327,7 @@ bool AckermannHardwareInterface::initialize_hardware()
     servo_min_pulse_ms_, servo_center_pulse_ms_, servo_max_pulse_ms_);
   pca9685_controller_->set_esc_limits(
     esc_min_pulse_ms_, esc_center_pulse_ms_, esc_max_pulse_ms_);
+  pca9685_controller_->set_clock_correction(clock_correction_);
 
   return pca9685_controller_->initialize();
 }

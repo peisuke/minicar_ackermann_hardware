@@ -35,6 +35,10 @@ LED0_ON_L = 0x06
 PWM_FREQ = 50            # 50Hz (サーボ標準)
 OSC_CLOCK = 25000000     # 内部クロック 25MHz
 
+# クロック補正係数 (個体差補正)
+# 実測による補正係数 (個体固有値)
+CLOCK_CORRECTION = 1.1
+
 
 # =============================================================================
 # チャンネル割り当て
@@ -85,10 +89,12 @@ class PCA9685:
         self.bus.write_byte_data(self.address, reg + 3, off >> 8)
 
     def set_pulse_ms(self, channel, pulse_ms):
-        """パルス幅(ms)でPWM設定"""
+        """パルス幅(ms)でPWM設定（クロック補正込み）"""
         # 50Hz = 20ms周期, 4096ステップ
         # pulse_ms / 20ms * 4096 = PWM値
-        pwm_value = int(pulse_ms / 20.0 * 4096)
+        # CLOCK_CORRECTION: 内部クロック誤差の補正
+        #   公称25MHzとの差を補正 (1.5ms指定で1.7ms出力 → 1.5/1.7 ≈ 0.882)
+        pwm_value = int(pulse_ms * CLOCK_CORRECTION / 20.0 * 4096)
         pwm_value = max(0, min(4095, pwm_value))
         self.set_pwm(channel, 0, pwm_value)
 

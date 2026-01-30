@@ -82,6 +82,9 @@ private:
   double esc_center_pulse_ms_;
   double esc_max_pulse_ms_;
 
+  // PCA9685 clock correction factor
+  double clock_correction_;
+
   // Open-loop odometry settings
   bool use_open_loop_odometry_;
   double open_loop_velocity_scale_;

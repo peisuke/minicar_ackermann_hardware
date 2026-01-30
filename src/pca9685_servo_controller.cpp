@@ -175,6 +175,11 @@ void PCA9685ServoController::set_esc_limits(double min_ms, double center_ms, dou
   esc_max_ms_ = max_ms;
 }
 
+void PCA9685ServoController::set_clock_correction(double correction)
+{
+  clock_correction_ = correction;
+}
+
 void PCA9685ServoController::set_pwm_pulse(int channel, double pulse_ms)
 {
   if (i2c_fd_ < 0 || channel < 0 || channel > 15) {
@@ -206,7 +211,7 @@ uint16_t PCA9685ServoController::pulse_to_pwm(double pulse_ms) const
 {
   // Convert pulse width to PWM value
   // PWM value = (pulse_ms / period_ms) * 4096
-  double duty = pulse_ms / PWM_PERIOD_MS;
+  double duty = (pulse_ms * clock_correction_) / PWM_PERIOD_MS;
   uint16_t pwm_value = static_cast<uint16_t>(duty * PCA9685_RESOLUTION);
 
   // Clamp to valid range
