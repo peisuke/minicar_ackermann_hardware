@@ -59,6 +59,10 @@
       <param name="esc_center_pulse_ms">1.5</param>
       <param name="esc_max_pulse_ms">2.0</param>
 
+      <!-- Output Scale (sim-to-real calibration) -->
+      <param name="throttle_scale">1.0</param>    <!-- ESC output multiplier -->
+      <param name="steering_scale">1.0</param>    <!-- Servo output multiplier -->
+
       <!-- Open-loop Odometry (no encoders) -->
       <param name="use_open_loop_odometry">true</param>
       <param name="open_loop_velocity_scale">1.0</param>

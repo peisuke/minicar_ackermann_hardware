@@ -55,6 +55,12 @@ hardware_interface::CallbackReturn AckermannHardwareInterface::on_init(
   clock_correction_ = info_.hardware_parameters.count("clock_correction") ?
     std::stod(info_.hardware_parameters.at("clock_correction")) : 1.0;
 
+  // Output scale factors
+  throttle_scale_ = info_.hardware_parameters.count("throttle_scale") ?
+    std::stod(info_.hardware_parameters.at("throttle_scale")) : 1.0;
+  steering_scale_ = info_.hardware_parameters.count("steering_scale") ?
+    std::stod(info_.hardware_parameters.at("steering_scale")) : 1.0;
+
   // Open-loop odometry
   use_open_loop_odometry_ = info_.hardware_parameters.count("use_open_loop_odometry") ?
     (info_.hardware_parameters.at("use_open_loop_odometry") == "true") : true;
@@ -302,7 +308,7 @@ double AckermannHardwareInterface::velocity_to_throttle(double velocity) const
     return 0.0;
   }
 
-  double normalized = velocity / max_wheel_velocity_;
+  double normalized = (velocity * throttle_scale_) / max_wheel_velocity_;
   return std::max(-1.0, std::min(1.0, normalized));
 }
 
@@ -313,7 +319,7 @@ double AckermannHardwareInterface::angle_to_servo_position(double angle) const
     return 0.0;
   }
 
-  double normalized = angle / max_steering_angle_;
+  double normalized = (angle * steering_scale_) / max_steering_angle_;
   return std::max(-1.0, std::min(1.0, normalized));
 }
 

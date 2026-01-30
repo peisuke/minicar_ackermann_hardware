@@ -85,6 +85,10 @@ private:
   // PCA9685 clock correction factor
   double clock_correction_;
 
+  // Output scale factors (sim-to-real calibration)
+  double throttle_scale_;
+  double steering_scale_;
+
   // Open-loop odometry settings
   bool use_open_loop_odometry_;
   double open_loop_velocity_scale_;
