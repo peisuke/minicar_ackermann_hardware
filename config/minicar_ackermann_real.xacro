@@ -61,7 +61,7 @@
 
       <!-- Output Scale (sim-to-real calibration) -->
       <param name="throttle_scale">1.0</param>    <!-- ESC output multiplier -->
-      <param name="steering_scale">1.0</param>    <!-- Servo output multiplier -->
+      <param name="steering_scale">-1.0</param>   <!-- Servo output multiplier (negative: invert direction) -->
 
       <!-- Open-loop Odometry (no encoders) -->
       <param name="use_open_loop_odometry">true</param>
